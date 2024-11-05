@@ -22,11 +22,18 @@ void Application::init(GLFWwindow* window)
 
     this->ambient_light = glm::vec4(0.75f, 0.75f, 0.75f, 1.f);
 
+    this->background_color = glm::vec4(0.8588f, 0.929f, 0.949f, 1.0f);
+
     /* ADD NODES TO THE SCENE */
-    SceneNode* example = new SceneNode();
+    /*SceneNode* example = new SceneNode();
     example->mesh = Mesh::Get("res/meshes/sphere.obj");
     example->material = new StandardMaterial();
-    this->node_list.push_back(example);
+    this->node_list.push_back(example);*/
+
+    VolumeNode* volumenode = new VolumeNode("Volume Node");
+    volumenode->mesh = Mesh::Get("res/meshes/cube.obj");
+    volumenode->material = new VolumeMaterial(background_color);
+    this->node_list.push_back(volumenode);
 }
 
 void Application::update(float dt)
@@ -42,7 +49,8 @@ void Application::update(float dt)
 void Application::render()
 {
     // set the clear color (the background color)
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
 
     // Clear the window and the depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -67,6 +75,15 @@ void Application::renderGUI()
     if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::ColorEdit3("Ambient light", (float*)&this->ambient_light);
+
+        if (ImGui::ColorEdit3("Background color", (float*)&this->background_color)) {
+            for (auto* node : node_list) {
+                if (node->type == NODE_VOLUME) {
+                    VolumeMaterial* volumematerial = (VolumeMaterial*)node->material;
+                    volumematerial->background_color = this->background_color;
+                }
+            }
+        }
 
         if (ImGui::TreeNode("Camera")) {
             this->camera->renderInMenu();

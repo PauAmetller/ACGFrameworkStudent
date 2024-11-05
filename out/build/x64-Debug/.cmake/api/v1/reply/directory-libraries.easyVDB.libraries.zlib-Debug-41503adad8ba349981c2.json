@@ -1,0 +1,119 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"libraries/easyVDB/libraries/zlib/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 182,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 188,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 191,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 194,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/install/x64-Debug/lib",
+			"paths" : 
+			[
+				"libraries/easyVDB/libraries/zlib/zlibd.lib"
+			],
+			"targetId" : "zlib::@fde8e791f15c2af963f0",
+			"targetIndex" : 10,
+			"targetIsImportLibrary" : true,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/install/x64-Debug/bin",
+			"paths" : 
+			[
+				"libraries/easyVDB/libraries/zlib/zlibd.dll"
+			],
+			"targetId" : "zlib::@fde8e791f15c2af963f0",
+			"targetIndex" : 10,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/install/x64-Debug/lib",
+			"paths" : 
+			[
+				"libraries/easyVDB/libraries/zlib/zlibstaticd.lib"
+			],
+			"targetId" : "zlibstatic::@fde8e791f15c2af963f0",
+			"targetIndex" : 11,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/install/x64-Debug/include",
+			"paths" : 
+			[
+				"out/build/x64-Debug/libraries/easyVDB/libraries/zlib/zconf.h",
+				"libraries/easyVDB/libraries/zlib/zlib.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/install/x64-Debug/share/man/man3",
+			"paths" : 
+			[
+				"libraries/easyVDB/libraries/zlib/zlib.3"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/install/x64-Debug/share/pkgconfig",
+			"paths" : 
+			[
+				"out/build/x64-Debug/libraries/easyVDB/libraries/zlib/zlib.pc"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "libraries/easyVDB/libraries/zlib",
+		"source" : "libraries/easyVDB/libraries/zlib"
+	}
+}

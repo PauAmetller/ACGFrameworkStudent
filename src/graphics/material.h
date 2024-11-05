@@ -15,6 +15,9 @@ public:
 	Shader* shader = NULL;
 	Texture* texture = NULL;
 	glm::vec4 color;
+	bool use_local_pos = true;
+
+	glm::vec3 GetInverseCameraPos(Camera* camera, glm::mat4 model);
 
 	virtual void setUniforms(Camera* camera, glm::mat4 model) = 0;
 	virtual void render(Mesh* mesh, glm::mat4 model, Camera* camera) = 0;
@@ -56,4 +59,41 @@ public:
 	void setUniforms(Camera* camera, glm::mat4 model);
 	void render(Mesh* mesh, glm::mat4 model, Camera* camera);
 	void renderInMenu();
+};
+
+class VolumeMaterial : public Material
+{
+public:
+
+	enum eShaderType { ABSORPTION, EMISSION_ABSORPTION};
+	enum eVolumeType { HOMOGENEOUS , HOTEROGENEOUS};
+
+	eShaderType shader_type;
+	eVolumeType volume_type;
+
+	//Homogenous
+	glm::vec4 background_color;
+	float absorption_coefficient;
+
+	//Heterogeneous
+	float step_length;
+	float noise_scale;
+	float noise_detail;
+
+	//Emission-absorption
+	glm::vec4 emitted_color;
+	int emitted_intensity;
+
+
+	Shader* absorption_shader;
+	Shader* emissive_absorption_shader;
+
+	VolumeMaterial(glm::vec4 background_color_);
+	~VolumeMaterial();
+
+	void setUniforms(Camera* camera, glm::mat4 model);
+	void render(Mesh* mesh, glm::mat4 model, Camera* camera);
+	void renderInMenu();
+
+	void assignShader();
 };

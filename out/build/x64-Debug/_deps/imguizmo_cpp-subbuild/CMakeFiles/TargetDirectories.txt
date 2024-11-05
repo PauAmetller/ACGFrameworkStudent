@@ -1,0 +1,3 @@
+C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/CMakeFiles/imguizmo_cpp-populate.dir
+C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/CMakeFiles/edit_cache.dir
+C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/CMakeFiles/rebuild_cache.dir

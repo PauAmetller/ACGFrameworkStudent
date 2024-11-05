@@ -1,0 +1,24 @@
+# ninja log v5
+5	262	7514062361435186	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-mkdir	d046681b395378ac
+5	262	7514062361435186	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-mkdir	d046681b395378ac
+263	1115	7514062370039139	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-download	8a8ba1e2cfd915b9
+263	1115	7514062370039139	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-download	8a8ba1e2cfd915b9
+1115	1346	7514062372309573	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-update	642044e3849093aa
+1115	1346	7514062372309573	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-update	642044e3849093aa
+1347	1654	7514062375317445	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-patch	811803df69ad1c06
+1347	1654	7514062375317445	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-patch	811803df69ad1c06
+1654	1909	7514062377911439	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-copyfile	22967362abfdee4f
+1654	1909	7514062377911439	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-src/ImGuizmo.cpp	22967362abfdee4f
+1654	1909	7514062377911439	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-copyfile	22967362abfdee4f
+1909	2143	7514062380335151	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-configure	70b41887df23f3bf
+1909	2143	7514062380335151	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-configure	70b41887df23f3bf
+2143	2402	7514062382771436	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-build	f3b9eaec0b180923
+2143	2402	7514062382771436	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-build	f3b9eaec0b180923
+2402	2675	7514062385591047	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-install	39d28b71a93f5b1e
+2402	2675	7514062385591047	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-install	39d28b71a93f5b1e
+2675	2935	7514062388239333	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-test	a7507d086feb7055
+2675	2935	7514062388239333	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-test	a7507d086feb7055
+2935	3279	7514062391645094	CMakeFiles/imguizmo_cpp-populate-complete	f159d1fad30bde5
+2935	3279	7514062391645094	imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-done	f159d1fad30bde5
+2935	3279	7514062391645094	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/CMakeFiles/imguizmo_cpp-populate-complete	f159d1fad30bde5
+2935	3279	7514062391645094	C:/Users/pauam/Documents/GitHub/Advanced Computer Graphics/Volumetric_Framework/ACGFrameworkStudent/out/build/x64-Debug/_deps/imguizmo_cpp-subbuild/imguizmo_cpp-populate-prefix/src/imguizmo_cpp-populate-stamp/imguizmo_cpp-populate-done	f159d1fad30bde5

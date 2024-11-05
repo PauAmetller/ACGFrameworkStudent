@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "libraries/easyVDB/libraries/c-blosc",
+		"source" : "libraries/easyVDB/libraries/c-blosc"
+	}
+}
