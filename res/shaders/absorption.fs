@@ -6,16 +6,22 @@ in vec3 v_normal;
 
 uniform vec3 u_camera_position;
 
-uniform vec4 u_color;
 uniform vec4 u_background_color;
 
 uniform float u_step_length;
 uniform float u_absorption_coefficient;
 
+//Noise
 uniform float u_noise_detail;
 uniform float u_noise_scale;
 
-uniform bool u_use_noise;
+//VDB
+uniform sampler3D u_texture;
+
+uniform int u_density_type;
+#define CONSTANT 0
+#define NOISE_3D 1
+#define VDB 2
 
 out vec4 FragColor;
 
@@ -116,24 +122,31 @@ void rayMarchingHomo(vec3 ray_origin, vec3 ray_direction, float t_near, float t_
 
 
 //Heterogenous
-void rayMarchingHete(vec3 ray_origin, vec3 ray_direction, float t_near, float t_far, out vec3 radiance) {
+void rayMarching(vec3 ray_origin, vec3 ray_direction, float t_near, float t_far, out vec3 radiance) {
 
     // Initialize parameters
     float step_length = u_step_length;           
     float t = t_near;             
     float optical_thickness = 0.0;
     vec3 current_pos = ray_origin + t_near * ray_direction;
+    float particle_density;
 
     // Compute the transmittance
     while (t < t_far){
-	float particle_density =  max(0.0, cnoise(current_pos, u_noise_scale, u_noise_detail));
-	float absorption_coefficient = particle_density * u_absorption_coefficient;
-    	optical_thickness += absorption_coefficient * step_length;
-	if(optical_thickness > 7){
-	    break;
-	}
-	t += step_length;
-	current_pos = ray_origin + t * ray_direction;
+        if (u_density_type == VDB) { // VDB file
+            particle_density = texture(u_texture, (current_pos + vec3(1.0)) / 2.0).r; //Remap the current pos since u_texture goes from 0 to 1
+        } else if (u_density_type == NOISE_3D) { // 3D Noise
+            particle_density = cnoise(current_pos, u_noise_scale, u_noise_detail);
+        }
+        
+        float absorption_coefficient = particle_density * u_absorption_coefficient;
+        optical_thickness += absorption_coefficient * step_length;
+
+        if(optical_thickness > 7){
+            break;
+        }
+        t += step_length;
+        current_pos = ray_origin + t * ray_direction;
     }
     float transmittance = exp(-optical_thickness);
 
@@ -153,10 +166,10 @@ void main() {
     // If ray intersects the volume, we perform ray marching
     if (intersections(ray_origin, ray_direction, box_min, box_max, t_near, t_far)) {
         vec3 radiance;
-	if(u_use_noise){
-        	rayMarchingHete(ray_origin, ray_direction, t_near, t_far, radiance);
-	} else {
+	if(u_density_type == CONSTANT){
 		rayMarchingHomo(ray_origin, ray_direction, t_near, t_far, radiance);
+	} else {
+		rayMarching(ray_origin, ray_direction, t_near, t_far, radiance);
 	}
         
         FragColor = vec4(radiance, 1.0);

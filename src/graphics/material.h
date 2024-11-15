@@ -3,6 +3,8 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/matrix.hpp>
+#include <openvdbReader.h>
+#include <bbox.h>
 
 #include "../framework/camera.h"
 #include "mesh.h"
@@ -65,11 +67,12 @@ class VolumeMaterial : public Material
 {
 public:
 
-	enum eShaderType { ABSORPTION, EMISSION_ABSORPTION};
-	enum eVolumeType { HOMOGENEOUS , HOTEROGENEOUS};
+	enum eShaderType { ABSORPTION, EMISSION_ABSORPTION, EMISSION_SCATTER_ABSORPTION};
+	enum eDensityType { CONSTANT, NOISE_3D, VDB_FILE};
 
-	eShaderType shader_type;
-	eVolumeType volume_type;
+
+	eDensityType densityType;
+	eShaderType shaderType;
 
 	//Homogenous
 	glm::vec4 background_color;
@@ -83,12 +86,18 @@ public:
 	//Emission-absorption
 	glm::vec4 emitted_color;
 	int emitted_intensity;
+	float Henyey_Greenstein_g;
+	bool use_phase_function;
 
+	float density_multiplier;
+	float scaterring_coefficient;
 
 	Shader* absorption_shader;
 	Shader* emissive_absorption_shader;
+	Shader* emissive_scatter_absorption_shader;
 
 	VolumeMaterial(glm::vec4 background_color_);
+	VolumeMaterial(glm::vec4 background_color_, std::string file_path);
 	~VolumeMaterial();
 
 	void setUniforms(Camera* camera, glm::mat4 model);
@@ -96,4 +105,6 @@ public:
 	void renderInMenu();
 
 	void assignShader();
+	void loadVDB(std::string file_path);
+	void estimate3DTexture(easyVDB::OpenVDBReader* vdbReader);
 };

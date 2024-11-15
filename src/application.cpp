@@ -17,7 +17,7 @@ void Application::init(GLFWwindow* window)
     this->camera->lookAt(glm::vec3(1.f, 1.5f, 4.f), glm::vec3(0.f, 0.0f, 0.f), glm::vec3(0.f, 1.f, 0.f));
     this->camera->setPerspective(60.f, this->window_width / (float)this->window_height, 0.1f, 500.f); // set the projection, we want to be perspective
 
-    this->flag_grid = true;
+    this->flag_grid = false;
     this->flag_wireframe = false;
 
     this->ambient_light = glm::vec4(0.75f, 0.75f, 0.75f, 1.f);
@@ -32,8 +32,12 @@ void Application::init(GLFWwindow* window)
 
     VolumeNode* volumenode = new VolumeNode("Volume Node");
     volumenode->mesh = Mesh::Get("res/meshes/cube.obj");
-    volumenode->material = new VolumeMaterial(background_color);
+    volumenode->material = new VolumeMaterial(background_color, "res/volumes/bunny_cloud.vdb");
     this->node_list.push_back(volumenode);
+
+    Light* point_light = new Light(glm::vec3(0.0f, 1.5f, 1.5f), LIGHT_POINT);
+    this->light_list.push_back(point_light);
+    this->node_list.push_back(point_light);
 }
 
 void Application::update(float dt)

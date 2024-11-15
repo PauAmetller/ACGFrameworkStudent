@@ -179,20 +179,51 @@ VolumeMaterial::VolumeMaterial(glm::vec4 background_color_) {
 	this->background_color = background_color_;
 
 	this->emitted_color = glm::vec4(1.f, 0.8f, 0.2f, 1.f);
-	this->absorption_coefficient = 0.955f;
-	this->step_length = 0.004f;
+	this->absorption_coefficient = 1.467f;
+	this->step_length = 0.04f;
 	this->noise_detail = 5;
 	this->noise_scale = 1.54f;
 	this->emitted_intensity = 1;
+	this->scaterring_coefficient = 1.f;
+	this->Henyey_Greenstein_g = 0.f;
 
-	this->shader_type = ABSORPTION;
-	this->volume_type = HOMOGENEOUS;
+	this->shaderType = eShaderType::ABSORPTION;
+	this->densityType = eDensityType::CONSTANT;
 
 	this->absorption_shader = Shader::Get("res/shaders/basic.vs", "res/shaders/absorption.fs");
 	this->emissive_absorption_shader = Shader::Get("res/shaders/basic.vs", "res/shaders/emissive_absorption.fs");
+	this->emissive_scatter_absorption_shader = Shader::Get("res/shaders/basic.vs", "res/shaders/emissive_scatter_absorption.fs");
 
+	this->use_phase_function = false;
 	this->use_local_pos = true;
-	assignShader();
+	this->assignShader();
+}
+
+VolumeMaterial::VolumeMaterial(glm::vec4 background_color_, std::string file_path) {
+	this->color = glm::vec4(1.f, 1.f, 1.f, 0.8f);
+	this->background_color = background_color_;
+
+	this->emitted_color = glm::vec4(1.f, 0.8f, 0.2f, 1.f);
+	this->absorption_coefficient = 1.467f;
+	this->step_length = 0.04f;
+	this->noise_detail = 5;
+	this->noise_scale = 1.54f;
+	this->emitted_intensity = 1;
+	this->scaterring_coefficient = 1.f;
+	this->Henyey_Greenstein_g = 0.f;
+
+	this->shaderType = eShaderType::ABSORPTION;
+	this->densityType = eDensityType::CONSTANT;
+
+	this->absorption_shader = Shader::Get("res/shaders/basic.vs", "res/shaders/absorption.fs");
+	this->emissive_absorption_shader = Shader::Get("res/shaders/basic.vs", "res/shaders/emissive_absorption.fs");
+	this->emissive_scatter_absorption_shader = Shader::Get("res/shaders/basic.vs", "res/shaders/emissive_scatter_absorption.fs");
+
+	this->use_phase_function = false;
+	this->use_local_pos = true;
+	this->assignShader();
+
+	this->loadVDB(file_path);
 }
 
 VolumeMaterial::~VolumeMaterial() { }
@@ -208,21 +239,32 @@ void VolumeMaterial::setUniforms(Camera* camera, glm::mat4 model)
 	this->shader->setUniform("u_background_color", this->background_color);
 	this->shader->setUniform("u_step_length", this->step_length);
 	this->shader->setUniform("u_absorption_coefficient", this->absorption_coefficient);
-	if (this->shader_type == eShaderType::EMISSION_ABSORPTION || this->volume_type == eVolumeType::HOTEROGENEOUS) {
+
+	this->shader->setUniform("u_density_type", (int)this->densityType);
+
+	if (this->densityType == eDensityType::NOISE_3D) {
 		this->shader->setUniform("u_noise_scale", this->noise_scale);
 		this->shader->setUniform("u_noise_detail", this->noise_detail);
 	}
-	this->shader->setUniform("u_use_noise", this->volume_type == eVolumeType::HOTEROGENEOUS);
 
-	if (this->shader_type == eShaderType::EMISSION_ABSORPTION) {
+	if (!(this->shaderType == eShaderType::ABSORPTION)) {
 		this->shader->setUniform("u_emitted_color", this->emitted_color);
 		this->shader->setUniform("u_emitted_intensity", this->emitted_intensity);
 	}
 
-	this->shader->setUniform("u_color", this->color);
+	if (this->densityType == eDensityType::VDB_FILE) {
+		if (this->texture) {
+			this->shader->setUniform("u_texture", this->texture, 0);
+		}
+	}
 
-	if (this->texture) {
-		this->shader->setUniform("u_texture", this->texture);
+	if (this->shaderType == eShaderType::EMISSION_SCATTER_ABSORPTION) {
+		this->shader->setUniform("u_scattering_coefficient", this->scaterring_coefficient);
+		this->shader->setUniform("u_use_phase_function", this->use_phase_function);
+		if (this->use_phase_function) {
+			this->shader->setUniform("u_g", this->Henyey_Greenstein_g);
+		}
+		Application::instance->light_list[0]->setUniforms(this->shader, model);
 	}
 }
 
@@ -250,31 +292,170 @@ void VolumeMaterial::render(Mesh* mesh, glm::mat4 model, Camera* camera)
 
 void VolumeMaterial::renderInMenu()
 {
-	if (ImGui::Combo("Shader Type", (int*)&shader_type, "ABSORPTION\0EMISSION_ABSORPTION\0")) {
-		assignShader();
+	if (ImGui::Combo("Shader Type", (int*)&shaderType, "ABSORPTION\0EMISSION_ABSORPTION\0EMISSION_SCATTER_ABSORPTION\0")) {
+		this->assignShader();
 	}
-	if (this->shader_type == eShaderType::EMISSION_ABSORPTION) {
+
+	if (!(this->densityType == CONSTANT && this->shaderType == eShaderType::ABSORPTION)) {
+		ImGui::SliderFloat("Step Lenght", (float*)&this->step_length, 0.001f, 0.2f);
+	}
+
+	ImGui::SliderFloat("Absorbsion Coeficient", (float*)&this->absorption_coefficient, 0.001f, 3.0f);
+
+	if (!(this->shaderType == eShaderType::ABSORPTION)) {
 		ImGui::ColorEdit3("Emitted color", (float*)&this->emitted_color);
 		ImGui::SliderInt("Emitted intensity", (int*)&this->emitted_intensity, 1, 20);
 	}
-	ImGui::SliderFloat("Absorbsion Coeficient", (float*)&this->absorption_coefficient, 0.001f, 3.0f);
-	ImGui::Combo("Volume Type", (int*)&volume_type, "HOMOGENEOUS\0HOTEROGENEOUS\0");
-	if (!(this->volume_type == HOMOGENEOUS && this->shader_type == eShaderType::ABSORPTION)) {
-		ImGui::SliderFloat("Step Lenght", (float*)&this->step_length, 0.001f, 0.2f);
+
+	if (this->shaderType == eShaderType::EMISSION_SCATTER_ABSORPTION) {
+		ImGui::SliderFloat("Scattering Coeficient", (float*)&this->scaterring_coefficient, 0.001f, 3.0f);
+		ImGui::Checkbox("Use phase function", &this->use_phase_function);
+		if(this->use_phase_function){
+			ImGui::SliderFloat("G for (isotropy/anisotropy)", (float*)&this->Henyey_Greenstein_g, -1.0f, 1.0f);
+		}
 	}
-	if (this->volume_type == eVolumeType::HOTEROGENEOUS) {
+
+	ImGui::Combo("Density Type", (int*)&densityType, "CONSTANT\0NOISE 3D\0VDB FILE\0");
+
+	if (this->densityType == eDensityType::NOISE_3D) {
 		ImGui::SliderFloat("Noise Scale", (float*)&this->noise_scale, 0.001f, 5.0f);
 		ImGui::SliderFloat("Noise Detail", (float*)&this->noise_detail, 1.0f, 5.0f);
 	}
-
 }
 
 void VolumeMaterial::assignShader() 
 {
-	if (this->shader_type == ABSORPTION) {
+	if (this->shaderType == eShaderType::ABSORPTION) {
 		this->shader = this->absorption_shader;
 	}
-	else if (this->shader_type == EMISSION_ABSORPTION) {
+	else if (this->shaderType == eShaderType::EMISSION_ABSORPTION) {
 		this->shader = this->emissive_absorption_shader;
+	}
+	else if (this->shaderType == eShaderType::EMISSION_SCATTER_ABSORPTION) {
+		this->shader = this->emissive_scatter_absorption_shader;
+	}
+}
+
+void VolumeMaterial::loadVDB(std::string file_path)
+{
+	easyVDB::OpenVDBReader* vdbReader = new easyVDB::OpenVDBReader();
+	vdbReader->read(file_path);
+
+	// now, read the grid from the vdbReader and store the data in a 3D texture
+	estimate3DTexture(vdbReader);
+}
+
+void VolumeMaterial::estimate3DTexture(easyVDB::OpenVDBReader* vdbReader)
+{
+	int resolution = 128;
+	float radius = 2.0;
+
+	int convertedGrids = 0;
+	int convertedVoxels = 0;
+
+	int totalGrids = vdbReader->gridsSize;
+	int totalVoxels = totalGrids * pow(resolution, 3);
+
+	float resolutionInv = 1.0f / resolution;
+	int resolutionPow2 = pow(resolution, 2);
+	int resolutionPow3 = pow(resolution, 3);
+
+	// read all grids data and convert to texture
+	for (unsigned int i = 0; i < totalGrids; i++) {
+		easyVDB::Grid& grid = vdbReader->grids[i];
+		float* data = new float[resolutionPow3];
+		memset(data, 0, sizeof(float) * resolutionPow3);
+
+		// Bbox
+		easyVDB::Bbox bbox = easyVDB::Bbox();
+		bbox = grid.getPreciseWorldBbox();
+		glm::vec3 target = bbox.getCenter();
+		glm::vec3 size = bbox.getSize();
+		glm::vec3 step = size * resolutionInv;
+
+		grid.transform->applyInverseTransformMap(step);
+		target = target - (size * 0.5f);
+		grid.transform->applyInverseTransformMap(target);
+		target = target + (step * 0.5f);
+
+		int x = 0;
+		int y = 0;
+		int z = 0;
+
+		for (unsigned int j = 0; j < resolutionPow3; j++) {
+			int baseX = x;
+			int baseY = y;
+			int baseZ = z;
+			int baseIndex = baseX + baseY * resolution + baseZ * resolutionPow2;
+
+			if (target.x >= 40 && target.y >= 40.33 && target.z >= 10.36) {
+				int a = 0;
+			}
+
+			float value = grid.getValue(target);
+
+			int cellBleed = radius;
+
+			if (cellBleed) {
+				for (int sx = -cellBleed; sx < cellBleed; sx++) {
+					for (int sy = -cellBleed; sy < cellBleed; sy++) {
+						for (int sz = -cellBleed; sz < cellBleed; sz++) {
+							if (x + sx < 0.0 || x + sx >= resolution ||
+								y + sy < 0.0 || y + sy >= resolution ||
+								z + sz < 0.0 || z + sz >= resolution) {
+								continue;
+							}
+
+							int targetIndex = baseIndex + sx + sy * resolution + sz * resolutionPow2;
+
+							float offset = std::max(0.0, std::min(1.0, 1.0 - std::hypot(sx, sy, sz) / (radius / 2.0)));
+							float dataValue = offset * value * 255.f;
+
+							data[targetIndex] += dataValue;
+							data[targetIndex] = std::min((float)data[targetIndex], 255.f);
+						}
+					}
+				}
+			}
+			else {
+				float dataValue = value * 255.f;
+
+				data[baseIndex] += dataValue;
+				data[baseIndex] = std::min((float)data[baseIndex], 255.f);
+			}
+
+			convertedVoxels++;
+
+			if (z >= resolution) {
+				break;
+			}
+
+			x++;
+			target.x += step.x;
+
+			if (x >= resolution) {
+				x = 0;
+				target.x -= step.x * resolution;
+
+				y++;
+				target.y += step.y;
+			}
+
+			if (y >= resolution) {
+				y = 0;
+				target.y -= step.y * resolution;
+
+				z++;
+				target.z += step.z;
+			}
+
+			// yield
+		}
+
+		// now we create the texture with the data
+		// use this: https://www.khronos.org/opengl/wiki/OpenGL_Type
+		// and this: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexImage3D.xhtml
+		this->texture = new Texture();
+		this->texture->create3D(resolution, resolution, resolution, GL_RED, GL_FLOAT, false, data, GL_R8);
 	}
 }
