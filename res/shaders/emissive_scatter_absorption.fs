@@ -27,6 +27,9 @@ uniform float u_g;
 //VDB
 uniform sampler3D u_texture;
 
+//Jittering filter
+uniform bool u_use_jittering;
+
 //light
 uniform float u_light_intensity;
 uniform vec4 u_light_color;
@@ -38,6 +41,13 @@ uniform int u_density_type;
 #define VDB 2
 
 out vec4 FragColor;
+
+//Random function for the offset
+float random(vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))*
+        43758.5453123);
+}
 
 // Noise functions
 float hash1( float n )
@@ -115,7 +125,13 @@ bool intersections(vec3 ray_origin, vec3 ray_direction, vec3 box_min, vec3 box_m
 void rayMarchingToLight(vec3 ray_origin, vec3 ray_direction, float t_far, out vec3 in_scattered_color){ 
 	// Initialize parameters
     float step_length = u_step_length;           
-	float t = 0.0;             
+	float t = 0.0; 
+    if (u_use_jittering){
+        float offset = random(gl_FragCoord.xy) * step_length;
+        if((t + offset) < t_far){
+            t += offset;
+        }
+    }              
 	float optical_thickness = 0.0;
 	vec3 current_pos = ray_origin;
 	float particle_density;
@@ -178,7 +194,7 @@ float phase_function(vec3 camera_ray_direction, vec3 light_ray_direction){
 void initializeRay(out vec3 ray_origin, out vec3 ray_direction)
 {
 	ray_origin = u_camera_position;
-	ray_direction = normalize(v_world_position - ray_origin);	
+	ray_direction = normalize(v_position - ray_origin);	
 }
 
 //With step_length
@@ -186,9 +202,15 @@ void rayMarching(vec3 ray_origin, vec3 ray_direction, float t_near, float t_far,
 
     // Initialize parameters
     float step_length = u_step_length;           
-    float t = t_near;             
+    float t = t_near; 
+    if (u_use_jittering){
+        float offset = random(gl_FragCoord.xy) * step_length;
+        if((t + offset) < t_far){
+            t += offset;
+        }
+    }              
     float optical_thickness = 0.0;
-    vec3 current_pos = ray_origin + t_far * ray_direction;
+    vec3 current_pos = ray_origin + t * ray_direction;
     float emissive_scatter_transmittance = 0.0;
     vec3 accumulatedRadiance = vec3(0.0);
     float particle_density;

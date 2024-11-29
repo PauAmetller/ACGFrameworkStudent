@@ -22,12 +22,22 @@ uniform int u_emitted_intensity;
 //VDB
 uniform sampler3D u_texture;
 
+//Jittering filter
+uniform bool u_use_jittering;
+
 uniform int u_density_type;
 #define CONSTANT 0
 #define NOISE_3D 1
 #define VDB 2
 
 out vec4 FragColor;
+
+//Random function for the offset
+float random(vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))*
+        43758.5453123);
+}
 
 // Noise functions
 float hash1( float n )
@@ -96,7 +106,7 @@ float cnoise( vec3 P, float scale, float detail )
 void initializeRay(out vec3 ray_origin, out vec3 ray_direction)
 {
 	ray_origin = u_camera_position;
-	ray_direction = normalize(v_world_position - ray_origin);	
+	ray_direction = normalize(v_position - ray_origin);	
 }
 
 bool intersections(vec3 ray_origin, vec3 ray_direction, vec3 box_min, vec3 box_max, out float t_near, out float t_far) {
@@ -114,9 +124,15 @@ void rayMarching(vec3 ray_origin, vec3 ray_direction, float t_near, float t_far,
 
     // Initialize parameters
     float step_length = u_step_length;           
-    float t = t_far;             
+    float t = t_far; 
+    if (u_use_jittering){
+        float offset = random(gl_FragCoord.xy) * step_length;
+        if((t - offset) > t_near){
+            t -= offset;
+        }
+    }       
     float optical_thickness = 0.0;
-    vec3 current_pos = ray_origin + t_far * ray_direction;
+    vec3 current_pos = ray_origin + t * ray_direction;
     float emissive_transmittance = 0.0;
     vec3 accumulatedRadiance = vec3(0.0);
     float particle_density;
@@ -124,26 +140,26 @@ void rayMarching(vec3 ray_origin, vec3 ray_direction, float t_near, float t_far,
 
     // Compute the transmittance
     while (t > t_near){
-	if (u_density_type == CONSTANT){
-		particle_density = 1.0;
-	} else if (u_density_type == VDB) { // VDB file
-    	particle_density = texture(u_texture, (current_pos + vec3(1.0)) / 2.0).r; //Remap the current pos since u_texture goes from 0 to 1
-	} else if (u_density_type == NOISE_3D) { // 3D Noise
-    	particle_density = cnoise(current_pos, u_noise_scale, u_noise_detail);
-	}
-	absorption_coefficient = particle_density * u_absorption_coefficient;
+        if (u_density_type == CONSTANT){
+            particle_density = 1.0;
+        } else if (u_density_type == VDB) { // VDB file
+            particle_density = texture(u_texture, (current_pos + vec3(1.0)) / 2.0).r; //Remap the current pos since u_texture goes from 0 to 1
+        } else if (u_density_type == NOISE_3D) { // 3D Noise
+            particle_density = cnoise(current_pos, u_noise_scale, u_noise_detail);
+        }
+        absorption_coefficient = particle_density * u_absorption_coefficient;
 
-    optical_thickness += absorption_coefficient * step_length;
+        optical_thickness += absorption_coefficient * step_length;
 
-	//Emission
-	emissive_transmittance = exp(-optical_thickness);
-	accumulatedRadiance += emissive_transmittance * absorption_coefficient * u_emitted_color.xyz * u_emitted_intensity * step_length;
+        //Emission
+        emissive_transmittance = exp(-optical_thickness);
+        accumulatedRadiance += emissive_transmittance * absorption_coefficient * u_emitted_color.xyz * u_emitted_intensity * step_length;
 
-	if(optical_thickness > 7){
-	    break;
-	}
-	t -= step_length;
-	current_pos = ray_origin + t * ray_direction;
+        if(optical_thickness > 7){
+            break;
+        }
+        t -= step_length;
+        current_pos = ray_origin + t * ray_direction;
     }
     float transmittance = exp(-optical_thickness);
 

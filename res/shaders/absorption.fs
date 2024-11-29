@@ -18,12 +18,22 @@ uniform float u_noise_scale;
 //VDB
 uniform sampler3D u_texture;
 
+//Jittering filter
+uniform bool u_use_jittering;
+
 uniform int u_density_type;
 #define CONSTANT 0
 #define NOISE_3D 1
 #define VDB 2
 
 out vec4 FragColor;
+
+//Random function for the offset
+float random(vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))*
+        43758.5453123);
+}
 
 // Noise functions
 float hash1( float n )
@@ -92,7 +102,7 @@ float cnoise( vec3 P, float scale, float detail )
 void initializeRay(out vec3 ray_origin, out vec3 ray_direction)
 {
 	ray_origin = u_camera_position;
-	ray_direction = normalize(v_world_position - ray_origin);	
+	ray_direction = normalize(v_position - ray_origin);	
 }
 
 bool intersections(vec3 ray_origin, vec3 ray_direction, vec3 box_min, vec3 box_max, out float t_near, out float t_far) {
@@ -126,9 +136,15 @@ void rayMarching(vec3 ray_origin, vec3 ray_direction, float t_near, float t_far,
 
     // Initialize parameters
     float step_length = u_step_length;           
-    float t = t_near;             
+    float t = t_near; 
+    if (u_use_jittering){
+        float offset = random(gl_FragCoord.xy) * step_length;
+        if((t + offset) < t_far){
+            t += offset;
+        }
+    }               
     float optical_thickness = 0.0;
-    vec3 current_pos = ray_origin + t_near * ray_direction;
+    vec3 current_pos = ray_origin + t * ray_direction;
     float particle_density;
 
     // Compute the transmittance

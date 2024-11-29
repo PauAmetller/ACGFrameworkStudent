@@ -30,10 +30,19 @@ void Application::init(GLFWwindow* window)
     example->material = new StandardMaterial();
     this->node_list.push_back(example);*/
 
+    this->volumenode_type = NOT_APPLY;
+
     VolumeNode* volumenode = new VolumeNode("Volume Node");
+    volumenode->model = glm::translate(volumenode->model, glm::vec3(1.5f, 0.f, 0.f));
     volumenode->mesh = Mesh::Get("res/meshes/cube.obj");
     volumenode->material = new VolumeMaterial(background_color, "res/volumes/bunny_cloud.vdb");
     this->node_list.push_back(volumenode);
+
+    VolumeNode* isosurfacenode = new VolumeNode("Volume_isosurface Node");
+    isosurfacenode->model = glm::translate(isosurfacenode->model, glm::vec3(-1.5f, 0.f, 0.f));
+    isosurfacenode->mesh = Mesh::Get("res/meshes/cube.obj");
+    isosurfacenode->material = new IsosurfaceMaterial(glm::vec4(1.f, 0.2f, 0.6f, 1.0f), background_color, "res/volumes/bunny_cloud.vdb");
+    this->node_list.push_back(isosurfacenode);
 
     Light* point_light = new Light(glm::vec3(0.0f, 1.5f, 1.5f), LIGHT_POINT);
     this->light_list.push_back(point_light);
@@ -65,7 +74,29 @@ void Application::render()
 
     for (unsigned int i = 0; i < this->node_list.size(); i++)
     {
-        this->node_list[i]->render(this->camera);
+        SceneNode* node = this->node_list[i];
+        if (auto* light = dynamic_cast<Light*>(node)) {
+            node->render(this->camera);
+            continue; // Skip further checks for Light nodes
+        }
+
+        if (!node->material) {
+            continue;
+        }
+
+        if (volumenode_type == NOT_APPLY) {
+            node->render(this->camera);
+        }
+        else if (volumenode_type == VOLUME_MATERIAL) {
+            if (auto* volumeMaterial = dynamic_cast<VolumeMaterial*>(node->material)) {
+                node->render(this->camera);
+            }
+        }
+        else if (volumenode_type == ISOSURFACE_MATERIAL) {
+            if (auto* isosurfaceMaterial = dynamic_cast<IsosurfaceMaterial*>(node->material)) {
+                node->render(this->camera);
+            }
+        }
 
         if (this->flag_wireframe) this->node_list[i]->renderWireframe(this->camera);
     }
@@ -96,11 +127,44 @@ void Application::renderGUI()
 
         unsigned int count = 0;
         std::stringstream ss;
+        ImGui::Combo("Node Rendering Type", (int*)&volumenode_type, "VOLUME_MATERIAL\0ISOSURFACE_MATERIAL\0NOT_APPLY\0");
         for (auto& node : this->node_list) {
             ss << count;
-            if (ImGui::TreeNode(node->name.c_str())) {
-                node->renderInMenu();
-                ImGui::TreePop();
+            if (auto* light = dynamic_cast<Light*>(node)) {
+                if (ImGui::TreeNode(node->name.c_str())) {
+                    node->renderInMenu();
+                    ImGui::TreePop();
+                }
+                continue;
+            }
+
+            if (volumenode_type == NOT_APPLY) {
+                if (ImGui::TreeNode(node->name.c_str())) {
+                    node->renderInMenu();
+                    ImGui::TreePop();
+                }
+                continue;
+            }
+
+            if (!node->material) {
+                continue;
+            }
+
+            if (volumenode_type == VOLUME_MATERIAL) {
+                if (auto* volumeMaterial = dynamic_cast<VolumeMaterial*>(node->material)) {
+                    if (ImGui::TreeNode(node->name.c_str())) {
+                        node->renderInMenu();
+                        ImGui::TreePop();
+                    }
+                }
+            }
+            else if (volumenode_type == ISOSURFACE_MATERIAL) {
+                if (auto* isosurfaceMaterial = dynamic_cast<IsosurfaceMaterial*>(node->material)) {
+                    if (ImGui::TreeNode(node->name.c_str())) {
+                        node->renderInMenu();
+                        ImGui::TreePop();
+                    }
+                }
             }
         }
         ImGui::TreePop();

@@ -17,6 +17,10 @@ public:
 	glm::vec4 ambient_light;
 	std::vector<Light*> light_list;
 
+	enum eVolumeNodeType { VOLUME_MATERIAL, ISOSURFACE_MATERIAL, NOT_APPLY};
+
+	eVolumeNodeType volumenode_type = VOLUME_MATERIAL;
+
 	glm::vec4 background_color;
 
 	int window_width;

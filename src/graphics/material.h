@@ -24,6 +24,9 @@ public:
 	virtual void setUniforms(Camera* camera, glm::mat4 model) = 0;
 	virtual void render(Mesh* mesh, glm::mat4 model, Camera* camera) = 0;
 	virtual void renderInMenu() = 0;
+
+	void loadVDB(std::string file_path);
+	void estimate3DTexture(easyVDB::OpenVDBReader* vdbReader);
 };
 
 class FlatMaterial : public Material {
@@ -89,6 +92,9 @@ public:
 	float Henyey_Greenstein_g;
 	bool use_phase_function;
 
+	//jittering
+	bool use_jittering;
+
 	float density_multiplier;
 	float scaterring_coefficient;
 
@@ -105,6 +111,40 @@ public:
 	void renderInMenu();
 
 	void assignShader();
-	void loadVDB(std::string file_path);
-	void estimate3DTexture(easyVDB::OpenVDBReader* vdbReader);
+};
+
+class IsosurfaceMaterial : public Material
+{
+public:
+
+	enum eDensityType { CONSTANT, NOISE_3D, VDB_FILE };
+
+	eDensityType densityType;
+	bool activate_illumination;
+
+	glm::vec4 background_color;
+	float step_length;
+	float noise_scale;
+	float noise_detail;
+
+	//jittering
+	bool use_jittering;
+
+	//Phong properties
+	glm::vec3 kd;
+	glm::vec3 ks;
+	float alpha;
+
+	glm::vec3 ambient_term;
+
+	float rate_of_change;
+
+	float threshold;
+
+	IsosurfaceMaterial(glm::vec4 color_, glm::vec4 background_color_, std::string file_path);
+	~IsosurfaceMaterial();
+
+	void setUniforms(Camera* camera, glm::mat4 model);
+	void render(Mesh* mesh, glm::mat4 model, Camera* camera);
+	void renderInMenu();
 };
